@@ -11,6 +11,7 @@ SCREEN_SIZE = (800, 600)
 RED = (255, 0, 0)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+GRAY = (80, 80, 80)
 background_color = list(RED)
 clock = pygame.time.Clock()
 FPS = 60
@@ -19,9 +20,10 @@ follower_radius = 10
 followers_speed = 5
 font1_size = 70
 font2_size = 28
+starting_time_to_new_follower = 1000
 
 #Not-so constant variable
-time_to_new_follower = 1000 # in miliseconds
+time_to_new_follower = starting_time_to_new_follower # in miliseconds
 
 #Texts
 font1 = pygame.font.SysFont("comicsans", font1_size)
@@ -117,6 +119,8 @@ def game_over():
         wn.blit(youlost, youlost_rect)
         if current_ticks - start_ticks >= 1700: #shows play again after 1700 miliseconds
             wn.blit(playagain, playagain_rect)
+
+        display_points(font1_size + font2_size + 10)
         clock.tick(FPS)
         pygame.display.update()
 
@@ -153,9 +157,19 @@ def game_start():
         clock.tick(FPS)
         pygame.display.update()
 
+def display_points(y_var):
+    global points
+    points_txt = font2.render(str(points), True, GRAY)
+    points_rect = points_txt.get_rect(center=(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]/2 + y_var))
+    wn.blit(points_txt, points_rect)
+
 #Main loop
 def game():
     global followers_list
+    global time_to_new_follower
+    global points
+    time_to_new_follower = 1000 #in miliseconds
+    points = 0
     followers_list = []
     create_follower(follower_initialpos[0])
 
@@ -167,8 +181,11 @@ def game():
 
             elif event.type == TIMER_EVENT:
                 create_follower(follower_initialpos[randint(0, len(follower_initialpos) - 1)])
+                points += 10
 
         wn.fill(background_color)
+
+        display_points(0)
 
         for object in followers_list:
             object.move()
