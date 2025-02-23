@@ -4,6 +4,7 @@ A game made in python/pygame, in which the mouse must avoid the approaching circ
 ## How to Play
 * Move the 🖱️ to avoid the circles
 * Press `space` to start the game/play again
+* Press `Esc` to exit
 
 ## How to Run
 ```
