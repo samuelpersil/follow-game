@@ -1,44 +1,132 @@
-import pygame #init
+import pygame
+from random import randint
+from sys import exit
 
 # Initializing
 pygame.init()
 
 #Constant variables
-wnsize = (800, 600)
+SCREEN_SIZE = (800, 600)
 RED = (255, 0, 0)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-speed = 5
+background_color = list(WHITE)
 clock = pygame.time.Clock()
 FPS = 60
+follower_initialpos = [(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]/2), (0, 0), (SCREEN_SIZE[0], 0), (0, SCREEN_SIZE[1]), (SCREEN_SIZE[0], SCREEN_SIZE[1])]
+follower_radius = 10
+followers_speed = 5.4
+
+#Not-so constant variable
+time_to_new_follower = 1 # in seconds
+
+#Game over text
+font1 = pygame.font.SysFont("comicsans", 70)
+youlost = font1.render("You lost!", True, BLACK)
+youlost_rect = youlost.get_rect(center=(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]/2))
+
+font2 = pygame.font.SysFont("comicsans", 30)
+playagain = font2.render("Press space to play again", True, BLACK)
+playagain_rect = playagain.get_rect(center=(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]/2 + 40))
+
+#Time control
+TIMER_EVENT = pygame.USEREVENT + 1
+pygame.time.set_timer(TIMER_EVENT, time_to_new_follower * 1000)
 
 #Display
-wn = pygame.display.set_mode(wnsize)
+wn = pygame.display.set_mode(SCREEN_SIZE)
 pygame.display.set_caption("Every Breath You Take...")
 
 #Follower
-follower_pos = [wnsize[0]/2, wnsize[1]/2]
-follower_radius = 10
-def move():
-    global mouse_pos
-    global follower_pos
-    diff_x = mouse_pos[0] - follower_pos[0]
-    diff_y = mouse_pos[1] - follower_pos[1]
-    diff = (diff_x**2 + diff_y**2) ** (1/2)
-    follower_pos[0] += (diff_x / diff) * speed
-    follower_pos[1] += (diff_y / diff) * speed
+class Follower:
+    def __init__(self, pos, radius, speed):
+        self.pos = [pos[0], pos[1]]
+        self.radius = radius
+        self.speed = speed
+    
+    def draw(self):
+        pygame.draw.circle(wn, RED, (self.pos[0], self.pos[1]), follower_radius)
+
+    def move(self):
+        mouse_pos = pygame.mouse.get_pos()
+        self.diff_x = mouse_pos[0] - self.pos[0]
+        self.diff_y = mouse_pos[1] - self.pos[1]
+        self.diff = (self.diff_x**2 + self.diff_y**2) ** (1/2)
+        self.pos[0] += (self.diff_x / self.diff) * self.speed
+        self.pos[1] += (self.diff_y / self.diff) * self.speed
+    
+    def check_collision(self):
+        if self.diff <= self.radius:
+            game_over()
+
+def create_follower(pos):
+    global time_to_new_follower
+    followers_list.append(Follower(pos, follower_radius, followers_speed * randint(90, 130) / 100))
+    time_to_new_follower *= 0.9
+
+#Game Over
+def game_over():
+    global background_color
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                pygame.quit()
+                exit()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                #Screen gets white smoothly
+
+                while background_color[1] != 255:
+                    wn.fill(background_color)
+                    clock.tick(FPS)
+                    pygame.display.update()
+
+                    background_color[1] += 5
+                    background_color[2] += 5
+
+                game()
+        
+        #Screen gets red smoothly
+        while background_color[1] != 0:
+            wn.fill(background_color)
+            clock.tick(FPS)    
+            pygame.display.update()
+
+            background_color[1] -= 5
+            background_color[2] -= 5
+
+        #Game over message
+        wn.blit(youlost, youlost_rect)
+        wn.blit(playagain, playagain_rect)
+        clock.tick(FPS)
+        pygame.display.update()
+
+
 
 #Main loop
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            exit()
+def game():
+    global followers_list
+    followers_list = []
+    create_follower(follower_initialpos[0])
 
-    mouse_pos = pygame.mouse.get_pos()
-    move()
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                pygame.quit()
+                exit()
 
-    wn.fill(WHITE)
-    pygame.draw.circle(wn, RED, follower_pos, follower_radius)
-    pygame.display.update()
-    clock.tick(FPS)
+            elif event.type == TIMER_EVENT or (event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE):
+                create_follower(follower_initialpos[randint(0, len(follower_initialpos) - 1)])
+
+        wn.fill(background_color)
+
+        for object in followers_list:
+            object.move()
+            object.draw()
+            object.check_collision()
+
+        clock.tick(FPS)    
+        pygame.display.update()
+
+
+if __name__ == "__main__":
+    game()
