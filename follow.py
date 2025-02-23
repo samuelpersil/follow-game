@@ -15,19 +15,21 @@ clock = pygame.time.Clock()
 FPS = 60
 follower_initialpos = [(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]/2), (0, 0), (SCREEN_SIZE[0], 0), (0, SCREEN_SIZE[1]), (SCREEN_SIZE[0], SCREEN_SIZE[1])]
 follower_radius = 10
-followers_speed = 5.4
+followers_speed = 5
+font1_size = 70
+font2_size = 28
 
 #Not-so constant variable
-time_to_new_follower = 1 # in seconds
+time_to_new_follower = 1000 # in miliseconds
 
 #Game over text
-font1 = pygame.font.SysFont("comicsans", 70)
+font1 = pygame.font.SysFont("comicsans", font1_size)
 youlost = font1.render("You lost!", True, BLACK)
 youlost_rect = youlost.get_rect(center=(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]/2))
 
-font2 = pygame.font.SysFont("comicsans", 30)
+font2 = pygame.font.SysFont("comicsans", font2_size)
 playagain = font2.render("Press space to play again", True, BLACK)
-playagain_rect = playagain.get_rect(center=(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]/2 + 40))
+playagain_rect = playagain.get_rect(center=(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]/2 + font1_size/2 + 10))
 
 #Time control
 TIMER_EVENT = pygame.USEREVENT + 1
@@ -62,7 +64,8 @@ class Follower:
 def create_follower(pos):
     global time_to_new_follower
     followers_list.append(Follower(pos, follower_radius, followers_speed * randint(90, 130) / 100))
-    time_to_new_follower *= 0.9
+    time_to_new_follower = round(time_to_new_follower * 0.99)
+    pygame.time.set_timer(TIMER_EVENT, time_to_new_follower)
 
 #Game Over
 def game_over():
@@ -99,8 +102,6 @@ def game_over():
         wn.blit(playagain, playagain_rect)
         clock.tick(FPS)
         pygame.display.update()
-
-
 
 #Main loop
 def game():
