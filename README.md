@@ -5,7 +5,7 @@ A game made in python/pygame, in which the mouse must avoid the approaching circ
 * Move the 🖱️ to avoid the circles
 * Press `space` to start the game/play again
 * Press `Esc` to exit
-
+* Press `f` to toggle fullscreen
 ## How to Run
 ```
 pip install pygame
