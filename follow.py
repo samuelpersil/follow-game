@@ -142,7 +142,7 @@ def game_start():
         
         #EASTER EGG
         mouse_pos = pygame.mouse.get_pos()
-        if ((mouse_pos[0] - starting_follower.pos[0])**2 + (mouse_pos[1] - starting_follower.pos[1])**2) ** (1/2) <= starting_follower.radius:
+        if ((mouse_pos[0] - starting_follower.pos[0])**2 + (mouse_pos[1] - starting_follower.pos[1])**2) ** (1/2) <= starting_follower.radius + 10:
             starting_follower.draw(BLACK)
         else:
             starting_follower.draw(WHITE)
