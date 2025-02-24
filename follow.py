@@ -7,6 +7,7 @@ from math import sin
 pygame.init()
 
 #Constant variables
+fullscreen = False
 SCREEN_SIZE = (800, 600)
 RED = (255, 0, 0)
 BLACK = (0, 0, 0)
@@ -49,6 +50,27 @@ pygame.time.set_timer(TIMER_EVENT, time_to_new_follower * 1000)
 #Display
 wn = pygame.display.set_mode(SCREEN_SIZE)
 pygame.display.set_caption("Follower")
+
+def toggle_fullscreen():
+    global fullscreen
+    global wn
+    global SCREEN_SIZE
+    global follower_initialpos, youlost_rect, playagain_rect, letsstart_rect, tutorial1_rect, tutorial2_rect
+    fullscreen = not fullscreen
+    if fullscreen:
+        wn = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    else:
+        wn = pygame.display.set_mode(SCREEN_SIZE)
+    
+    #Variables transform
+    follower_initialpos = [(pygame.display.get_window_size()[0]/2, pygame.display.get_window_size()[1]/2), (0, 0), (pygame.display.get_window_size()[0], 0), (0, pygame.display.get_window_size()[1]), (pygame.display.get_window_size()[0], pygame.display.get_window_size()[1])]
+    youlost_rect = youlost.get_rect(center=(pygame.display.get_window_size()[0]/2, pygame.display.get_window_size()[1]/2))
+    playagain_rect = playagain.get_rect(center=(pygame.display.get_window_size()[0]/2, pygame.display.get_window_size()[1]/2 + font1_size/2 + 10))
+    letsstart_rect = letsstart.get_rect(center=(pygame.display.get_window_size()[0]/2, 100))
+    tutorial1_rect = tutorial1.get_rect(center=(pygame.display.get_window_size()[0]/2, pygame.display.get_window_size()[1]/2 + font1_size/2 - 20))
+    tutorial2_rect = tutorial2.get_rect(center=(pygame.display.get_window_size()[0]/2, pygame.display.get_window_size()[1]/2 + font1_size/2 - 20 + font2_size))
+
+
 
 #Follower
 class Follower:
@@ -106,13 +128,16 @@ def game_over():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 pygame.quit()
                 exit()
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 #Screen gets white smoothly
                 background_fade_white()
                 game()
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_f:
+                toggle_fullscreen()
         
         #Screen gets red smoothly
         background_fade_red()
+        wn.fill(background_color)
         current_ticks = pygame.time.get_ticks()
 
         #Game over message
@@ -132,9 +157,11 @@ def game_start():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 pygame.quit()
                 exit()
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 background_fade_white()
                 game()
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_f:
+                toggle_fullscreen()
         
         wn.fill(background_color)
         if starting_follower.pos[0] >= SCREEN_SIZE[0]:
@@ -160,7 +187,7 @@ def game_start():
 def display_points(y_var):
     global points
     points_txt = font2.render(str(points), True, GRAY)
-    points_rect = points_txt.get_rect(center=(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]/2 + y_var))
+    points_rect = points_txt.get_rect(center=(pygame.display.get_window_size()[0]/2, pygame.display.get_window_size()[1]/2 + y_var))
     wn.blit(points_txt, points_rect)
 
 #Main loop
